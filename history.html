@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>History Barang - ABElektronik</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f7f7f7 0%, #f6f6f6 100%);
+      color: #1a1a1a;
+      max-width: 100vw;
+      margin: 0 auto;
+      padding: 16px 12px 120px 12px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Header with fade-in animation */
+    header {
+      margin-bottom: 20px;
+      padding: 20px;
+      background: rgba(35, 37, 153, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    header h1 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin: 0;
+      letter-spacing: 0.5px;
+      color: #2c3e50;
+      text-align: center;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Search container with slide-in animation */
+    .search-filter-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+      position: relative;
+      animation: slideInLeft 0.5s ease-out 0.2s both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    input[type="search"] {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 12px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
+      color: #2c3e50;
+      font-weight: 500;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input[type="search"]::placeholder {
+      color: #7f8c8d;
+      font-weight: 400;
+    }
+
+    input[type="search"]:focus {
+      background: white;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      transform: translateY(-1px);
+    }
+
+    button.filter-btn {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      cursor: pointer;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: #667eea;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    button.filter-btn:hover, button.filter-btn:focus {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+      outline: none;
+    }
+
+    button.filter-btn:active {
+      transform: translateY(0);
+    }
+
+    button.filter-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    /* Dropdown with bounce animation */
+    .filter-menu {
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      padding: 8px 0;
+      width: 160px;
+      display: none;
+      z-index: 20;
+      user-select: none;
+      overflow: hidden;
+      animation: bounceIn 0.3s ease-out;
+    }
+
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(-10px);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.05) translateY(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .filter-menu.show {
+      display: block;
+    }
+
+    .filter-menu button {
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: #2c3e50;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .filter-menu button:hover, .filter-menu button:focus {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      outline: none;
+    }
+
+    /* Table with staggered animation */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      animation: slideInUp 0.6s ease-out 0.4s both;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    thead {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+    }
+    
+    th, td {
+      padding: 8px 6px;
+      text-align: left;
+      font-size: 0.75rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    th {
+      font-weight: 600;
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+      animation: fadeInRow 0.5s ease-out both;
+    }
+
+    @keyframes fadeInRow {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    tbody tr:hover {
+      background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      transform: translateX(4px);
+    }
+
+    .kategori-masuk {
+      color: #27ae60;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .kategori-keluar {
+      color: #e74c3c;
+      font-weight: 600;
+      position: relative;
+    }
+
+    /* Bottom buttons with bounce animation */
+    .bottom-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      animation: bounceInUp 0.6s ease-out 0.6s both;
+    }
+
+    @keyframes bounceInUp {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(60px);
+      }
+      60% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-10px);
+      }
+      100% {
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    button.primary-btn {
+      border: none;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button.primary-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.5s ease;
+    }
+
+    button.primary-btn:active::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    button.primary-btn svg {
+      stroke: white;
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    button.primary-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    button.primary-btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    button.primary-btn:active {
+      transform: translateY(-1px);
+    }
+
+    button.barang-masuk-btn {
+      background: linear-gradient(45deg, #27ae60, #2ecc71);
+    }
+
+    button.barang-keluar-btn {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+    }
+
+    /* Modal with scale animation */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: white;
+      border-radius: 20px;
+      max-width: 90%;
+      width: 360px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      color: #2c3e50;
+      font-weight: 500;
+      animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8) translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-align: center;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #34495e;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .input-row input[type="text"], .input-row input[type="search"] {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border: 2px solid #ecf0f1;
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.3s ease;
+      color: #2c3e50;
+      background-color: #fff;
+      font-weight: 500;
+    }
+
+    .input-row input[type="text"]::placeholder, .input-row input[type="search"]::placeholder {
+      color: #95a5a6;
+      font-weight: 400;
+    }
+
+    .input-row input[type="text"]:focus, .input-row input[type="search"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    button.scan-barcode-btn {
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    button.scan-barcode-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    button.scan-barcode-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      fill: none;
+    }
+
+    input[type="number"], input[type="date"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border: 2px solid #ecf0f1;
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.3s ease;
+      color: #2c3e50;
+      background-color: #fff;
+      font-weight: 500;
+    }
+
+    input[type="number"]:focus, input[type="date"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .modal-buttons {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .modal-buttons button {
+      padding: 12px 24px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-buttons button.save-btn {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .modal-buttons button.save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .modal-buttons button.cancel-btn {
+      background: #ecf0f1;
+      color: #7f8c8d;
+    }
+
+    .modal-buttons button.cancel-btn:hover {
+      background: #bdc3c7;
+      color: #2c3e50;
+    }
+
+    /* Scanner container */
+    #scanner-container {
+      display: none;
+      position: relative;
+      margin-top: 10px;
+      border: 2px solid #667eea;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 320px;
+      height: 240px;
+      background: black;
+      z-index: 4000;
+      overflow: hidden;
+    }
+
+    #scanner-container #closeScannerBtn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 16px;
+      text-align: center;
+      padding: 0;
+      transition: all 0.3s ease;
+    }
+
+    #scanner-container #closeScannerBtn:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+    }
+
+    #interactive.viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 360px) {
+      body {
+        padding: 12px 8px 120px 8px;
+      }
+      
+      th, td {
+        padding: 6px 4px;
+        font-size: 0.7rem;
+      }
+      
+      th {
+        font-size: 0.65rem;
+      }
+      
+      button.primary-btn {
+        padding: 10px 16px;
+        font-size: 0.8rem;
+      }
+      
+      header h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+  <!-- Load Quagga.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <!-- Firebase App (core SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <!-- Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header>
+    <h1>History Barang</h1>
+  </header>
+  <div class="search-filter-container" tabindex="0">
+    <input type="search" id="searchInput" placeholder="Cari nama barang..." aria-label="Cari nama barang" />
+    <button type="button" class="filter-btn" title="Filter data" aria-haspopup="true" aria-expanded="false" aria-controls="filterMenu" id="filterButton">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M3 4h18M7 12h10M12 20h0" />
+      </svg>
+    </button>
+    <div class="filter-menu" id="filterMenu" role="menu" aria-labelledby="filterButton" tabindex="-1">
+      <button type="button" role="menuitem" data-filter="all">Semua</button>
+      <button type="button" role="menuitem" data-filter="masuk">Barang Masuk</button>
+      <button type="button" role="menuitem" data-filter="keluar">Barang Keluar</button>
+    </div>
+  </div>
+
+  <table aria-label="Tabel history barang">
+    <thead>
+      <tr>
+        <th style="width: 0px;">Id</th>
+        <th style="width: 50px;">Nama Barang</th>
+        <th style="width: 20px;">Brand</th>
+        <th style="width: 10px;">Qty</th>
+        <th style="width: 45px;">Tanggal</th>
+        <th style="width: 50px;">Ket</th>
+      </tr>
+    </thead>
+    <tbody id="historyTableBody">
+      <!-- Rows will be populated here -->
+    </tbody>
+  </table>
+
+  <div class="bottom-buttons" aria-label="Tombol aksi">
+    <button class="primary-btn barang-masuk-btn" type="button" id="btnBarangMasuk">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 4v16M8 12h8" />
+      </svg>
+      Barang Masuk
+    </button>
+    <button class="primary-btn barang-keluar-btn" type="button" id="btnBarangKeluar">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 20V4M8 12h8" />
+      </svg>
+      Barang Keluar
+    </button>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="formModal" role="dialog" aria-modal="true" aria-labelledby="formModalTitle" tabindex="-1" style="display:none;">
+    <div class="modal">
+      <h2 id="formModalTitle">Tambah Data</h2>
+      <form id="formHistory" autocomplete="off">
+        <div class="form-group">
+          <label for="barcodeInput">Nomor Barcode</label>
+          <div class="input-row">
+            <input type="text" id="barcodeInput" name="barcode" placeholder="Masukkan nomor barcode" required autocomplete="off" />
+            <button type="button" id="scanBarcodeBtn" class="scan-barcode-btn" aria-label="Scan Barcode">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <path d="M7 3v18M17 3v18M3 7h18M3 17h18" />
+              </svg>
+              Scan
+            </button>
+          </div>
+          <!-- Scanner container for Quagga -->
+          <div id="scanner-container" aria-label="Scanner Barcode">
+            <button id="closeScannerBtn" aria-label="Tutup Scanner">&times;</button>
+            <div id="interactive" class="viewport"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="namaBarangInput">Nama Barang</label>
+          <div class="input-row">
+            <input list="namaBarangList" type="text" id="namaBarangInput" name="namaBarang" placeholder="Masukkan nama barang" required />
+          </div>
+          <datalist id="namaBarangList"></datalist>
+        </div>
+        <div class="form-group">
+          <label for="brandInput">Brand</label>
+          <div class="input-row">
+            <input type="text" id="brandInput" name="brand" placeholder="Masukkan brand" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="jumlahInput">Jumlah</label>
+          <input type="number" id="jumlahInput" name="jumlah" min="1" placeholder="Masukkan jumlah" required />
+        </div>
+        <div class="form-group">
+          <label for="tanggalInput">Tanggal</label>
+          <input type="date" id="tanggalInput" name="tanggal" required />
+        </div>
+        <div class="modal-buttons">
+          <button type="button" id="cancelBtn" class="cancel-btn">Batal</button>
+          <button type="submit" class="save-btn">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script src="firebase-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script>
+// Variabel global produk untuk lookup barcode
+let productsData = [];
+
+// Load produk dari database Firestore
+async function loadProducts() {
+  const activeStoreId = localStorage.getItem('activeStoreId');
+  if (!activeStoreId) {
+    console.error('Store ID tidak ditemukan');
+    return [];
+  }
+  try {
+    productsData = await window.firebaseUtils.fetchProducts(activeStoreId);
+    populateDatalist();
+    return productsData;
+  } catch (error) {
+    console.error('Error saat mengambil produk:', error);
+    return [];
+  }
+}
+
+// Fungsi untuk fetch history dengan penanganan error yang lebih baik
+async function fetchHistory(activeStoreId) {
+  if (!activeStoreId) {
+    console.error('Store ID tidak valid untuk fetch history');
+    return [];
+  }
+  try {
+    // Panggil fetchHistory dari firebaseUtils
+    return await window.firebaseUtils.fetchHistory(activeStoreId);
+  } catch (error) {
+    console.error('Error saat fetch history:', error);
+    return [];
+  }
+}
+
+// Cari produk berdasarkan barcode
+function findProductByBarcode(barcode) {
+  return productsData.find(p => p.barcode === barcode);
+}
+
+// Update stok produk saat history bertambah
+async function updateProductStock(barcode, jumlah, kategori) {
+  const product = findProductByBarcode(barcode);
+  if (!product) {
+    throw new Error('Produk dengan barcode ini tidak ditemukan');
+  }
+  let newStock = parseInt(product.stok) || 0;
+  jumlah = parseInt(jumlah) || 0;
+  
+  if (kategori === 'masuk') {
+    newStock += jumlah;
+  } else if (kategori === 'keluar') {
+    if (newStock < jumlah) {
+      throw new Error('Stok produk tidak cukup untuk barang keluar');
+    }
+    newStock -= jumlah;
+  }
+  await window.firebaseUtils.updateProduct(product.id, { stok: newStock });
+  product.stok = newStock;
+}
+
+// Isi otomatis nama barang dan brand saat barcode diinput
+document.getElementById('barcodeInput').addEventListener('input', (e) => {
+  const barcode = e.target.value.trim();
+  fillProductInfo(barcode);
+});
+
+// Fungsi yang diperbarui untuk format Firestore timestamp
+function formatFirestoreTimestamp(timestamp) {
+  if (!timestamp) return '';
+  
+  // Handle jika timestamp adalah objek Firestore Timestamp
+  if (timestamp && typeof timestamp.toDate === 'function') {
+    return formatDate(timestamp.toDate());
+  }
+  
+  // Handle jika timestamp adalah objek Date
+  if (timestamp instanceof Date) {
+    return formatDate(timestamp);
+  }
+  
+  // Handle jika timestamp adalah string ISO atau timestamp dalam bentuk lain
+  try {
+    return formatDate(new Date(timestamp));
+  } catch (e) {
+    console.error('Format timestamp tidak valid:', e);
+    return '';
+  }
+}
+
+function formatDate(date) {
+  if (!(date instanceof Date) || isNaN(date)) {
+    return '';
+  }
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// Fungsi yang diperbarui untuk memuat history
+async function loadHistory() {
+  const activeStoreId = localStorage.getItem('activeStoreId');
+  console.log('Active Store ID untuk load history:', activeStoreId);
+  
+  if (!activeStoreId) {
+    console.error('Store ID tidak ditemukan');
+    document.getElementById('historyTableBody').innerHTML = 
+      '<tr><td colspan="6">Store ID tidak ditemukan. Silakan pilih toko terlebih dahulu.</td></tr>';
+    return;
+  }
+  
+  try {
+    // Panggil langsung dari window.firebaseUtils
+    const historyData = await window.firebaseUtils.fetchHistory(activeStoreId);
+    console.log('History Data fetched:', historyData);
+    
+    const tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = '';
+
+    if (!historyData || historyData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">Tidak ada data history yang ditemukan untuk toko ini.</td></tr>';
+      return;
+    }
+
+    // Data sudah difilter di firebaseUtils.fetchHistory, tidak perlu filter lagi
+    historyData.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      
+      // Pastikan data atribut tidak undefined
+      const namaBarang = item.namaBarang || '';
+      const brand = item.brand || '';
+      const kategori = item.kategori || '';
+      
+      tr.setAttribute('data-kategori', kategori);
+      tr.setAttribute('data-nama', namaBarang.toLowerCase());
+      tr.setAttribute('data-brand', brand.toLowerCase());
+
+      // Format tanggal dengan aman
+      let formattedDate = '';
+      try {
+        formattedDate = formatFirestoreTimestamp(item.tanggal);
+      } catch (e) {
+        console.error('Error saat format tanggal:', e);
+        formattedDate = 'Format tanggal error';
+      }
+
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${namaBarang}</td>
+        <td>${brand}</td>
+        <td>${item.jumlah || 0}</td>
+        <td>${formattedDate}</td>
+        <td class="kategori-${kategori}">${kategori === 'masuk' ? 'Barang Masuk' : 'Barang Keluar'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (error) {
+    console.error('Error lengkap saat load history:', error);
+    document.getElementById('historyTableBody').innerHTML = 
+      '<tr><td colspan="6">Gagal memuat data history: ' + error.message + '</td></tr>';
+    alert('Gagal memuat data history: ' + error.message);
+  }
+}
+
+// Populate datalist nama barang dari productsData
+function populateDatalist() {
+  const namaBarangList = document.getElementById('namaBarangList');
+  namaBarangList.innerHTML = '';
+  
+  if (!productsData || productsData.length === 0) {
+    return;
+  }
+  
+  const namaSet = new Set(
+    productsData
+      .filter(p => p && p.namaBarang) // Pastikan produk dan namaBarang valid
+      .map(p => p.namaBarang)
+  );
+  
+  namaSet.forEach(nama => {
+    if (nama) { // Pastikan nama tidak undefined atau null
+      const option = document.createElement('option');
+      option.value = nama;
+      namaBarangList.appendChild(option);
+    }
+  });
+}
+
+// Set tanggal hari ini sebagai default
+const tanggalInput = document.getElementById('tanggalInput');
+function setToday() {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  tanggalInput.value = `${yyyy}-${mm}-${dd}`;
+}
+
+// Modal dan form kontrol
+const formModal = document.getElementById('formModal');
+const btnBarangMasuk = document.getElementById('btnBarangMasuk');
+const btnBarangKeluar = document.getElementById('btnBarangKeluar');
+const formModalTitle = document.getElementById('formModalTitle');
+const cancelBtn = document.getElementById('cancelBtn');
+const formHistory = document.getElementById('formHistory');
+
+let currentType = 'masuk';
+
+btnBarangMasuk.addEventListener('click', () => {
+  currentType = 'masuk';
+  formModalTitle.textContent = 'Tambah Barang Masuk';
+  formHistory.reset();
+  setToday();
+  formModal.style.display = 'flex';
+  document.getElementById('barcodeInput').focus();
+});
+
+btnBarangKeluar.addEventListener('click', () => {
+  currentType = 'keluar';
+  formModalTitle.textContent = 'Tambah Barang Keluar';
+  formHistory.reset();
+  setToday();
+  formModal.style.display = 'flex';
+  document.getElementById('barcodeInput').focus();
+});
+
+cancelBtn.addEventListener('click', () => {
+  formModal.style.display = 'none';
+  formHistory.reset();
+});
+
+formModal.addEventListener('click', (e) => {
+  if (e.target === formModal) {
+    formModal.style.display = 'none';
+    formHistory.reset();
+  }
+});
+
+// Quagga.js Scanner elements and functions
+const scanBtn = document.getElementById('scanBarcodeBtn');
+const scannerContainer = document.getElementById('scanner-container');
+const closeScannerBtn = document.getElementById('closeScannerBtn');
+const barcodeInput = document.getElementById('barcodeInput');
+
+let isScanning = false;
+
+function startQuaggaScanner() {
+  if (isScanning) return;
+
+  scannerContainer.style.display = 'block';
+  barcodeInput.value = ''; // kosongkan dulu
+
+  Quagga.init({
+    inputStream: {
+      type: "LiveStream",
+      constraints: {
+        facingMode: "environment"
+      },
+      target: document.querySelector('#interactive')
+    },
+    decoder: {
+      readers: [
+        "code_128_reader",
+        "ean_reader",
+        "ean_8_reader",
+        "code_39_reader",
+        "code_39_vin_reader",
+        "codabar_reader",
+        "upc_reader",
+        "upc_e_reader",
+        "i2of5_reader",
+        "2of5_reader",
+        "code_93_reader"
+      ]
+    },
+    locate: true
+  }, function(err) {
+    if (err) {
+      console.error(err);
+      alert('Gagal menginisialisasi scanner: ' + err);
+      stopQuaggaScanner();
+      return;
+    }
+    Quagga.start();
+    isScanning = true;
+  });
+
+  Quagga.onDetected(onBarcodeDetected);
+}
+
+function stopQuaggaScanner() {
+  if (!isScanning) return;
+
+  Quagga.offDetected(onBarcodeDetected);
+  Quagga.stop();
+  isScanning = false;
+  scannerContainer.style.display = 'none';
+}
+
+// Fungsi isi otomatis nama barang dan brand berdasarkan barcode
+function fillProductInfo(barcode) {
+  const namaBarangInput = document.getElementById('namaBarangInput');
+  const brandInput = document.getElementById('brandInput');
+
+  if (!barcode || barcode.length === 0) {
+    namaBarangInput.value = '';
+    brandInput.value = '';
+    return;
+  }
+
+  const product = findProductByBarcode(barcode);
+  if (product) {
+    namaBarangInput.value = product.namaBarang || '';
+    brandInput.value = product.brand || '';
+  } else {
+    namaBarangInput.value = '';
+    brandInput.value = '';
+  }
+}
+
+// Modifikasi fungsi onBarcodeDetected agar memanggil fillProductInfo setelah scan berhasil
+function onBarcodeDetected(result) {
+  if (result && result.codeResult && result.codeResult.code) {
+    const code = result.codeResult.code;
+    barcodeInput.value = code;
+    fillProductInfo(code); // Auto-fill nama dan brand
+    stopQuaggaScanner();
+  }
+}
+
+scanBtn.addEventListener('click', () => {
+  if (!isScanning) {
+    startQuaggaScanner();
+  }
+});
+
+closeScannerBtn.addEventListener('click', () => {
+  if (isScanning) {
+    stopQuaggaScanner();
+  }
+});
+
+// Tambahkan fungsi untuk memastikan validasi tipe data harga
+function ensureNumeric(value) {
+  if (typeof value === 'string') {
+    // Hapus semua karakter non-angka
+    value = value.replace(/[^\d]/g, '');
+  }
+  const number = parseInt(value);
+  return isNaN(number) ? 0 : number;
+}
+
+// Submit form history dengan penanganan error yang lebih baik
+formHistory.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const barcode = formHistory.barcode.value.trim();
+  const namaBarang = formHistory.namaBarang.value.trim();
+  const brand = formHistory.brand.value.trim();
+  const jumlah = parseInt(formHistory.jumlah.value.trim());
+  const tanggal = formHistory.tanggal.value.trim();
+  const activeStoreId = localStorage.getItem('activeStoreId');
+
+  if (!barcode || !namaBarang || !brand || !jumlah || !tanggal) {
+    alert('Semua field wajib diisi');
+    return;
+  }
+
+  if (!activeStoreId) {
+    alert('Store ID tidak ditemukan. Silakan pilih toko terlebih dahulu.');
+    return;
+  }
+
+  // Cari harga produk berdasarkan barcode
+  const product = productsData.find(p => p.barcode === barcode);
+  if (!product) {
+    alert('Produk tidak ditemukan di database produk.');
+    return;
+  }
+
+  const harga = ensureNumeric(product.harga);
+
+  // Pastikan tanggal dikonversi ke Firestore Timestamp
+  let firestoreDate;
+  try {
+    if (firebase.firestore && firebase.firestore.Timestamp) {
+      // Konversi string tanggal ke object Date JavaScript
+      const dateParts = tanggal.split('-');
+      const dateObj = new Date(
+        parseInt(dateParts[0]), 
+        parseInt(dateParts[1]) - 1, // bulan dimulai dari 0
+        parseInt(dateParts[2])
+      );
+      firestoreDate = firebase.firestore.Timestamp.fromDate(dateObj);
+    } else {
+      // Fallback jika firebase.firestore tidak tersedia
+      firestoreDate = new Date(tanggal);
+    }
+  } catch (error) {
+    console.error('Error saat konversi tanggal:', error);
+    firestoreDate = new Date(); // Gunakan tanggal hari ini sebagai fallback
+  }
+
+  // Log data sebelum kirim ke Firestore
+  console.log('Menyimpan data history:', {
+    barcode, 
+    namaBarang, 
+    brand, 
+    jumlah, 
+    harga,
+    tanggal: firestoreDate, 
+    kategori: currentType, 
+    storeId: activeStoreId
+  });
+
+  const item = { 
+    barcode, 
+    namaBarang, 
+    brand, 
+    jumlah, 
+    harga,
+    tanggal: firestoreDate, 
+    kategori: currentType, 
+    storeId: activeStoreId 
+  };
+
+  try {
+    await updateProductStock(barcode, jumlah, currentType);
+    await window.firebaseUtils.addHistoryItem(item);
+    formModal.style.display = 'none';
+    formHistory.reset();
+    
+    // Reload data setelah menambahkan item baru
+    await loadProducts();
+    await loadHistory();
+  } catch (error) {
+    console.error('Error saat menyimpan data:', error);
+    alert('Gagal menyimpan data: ' + error.message);
+  }
+});
+
+// Filter dropdown dan search filtering
+const filterButton = document.getElementById('filterButton');
+const filterMenu = document.getElementById('filterMenu');
+const searchInput = document.getElementById('searchInput');
+const historyTableBody = document.getElementById('historyTableBody');
+
+filterButton.addEventListener('click', () => {
+  const expanded = filterButton.getAttribute('aria-expanded') === 'true';
+  if (expanded) {
+    filterMenu.classList.remove('show');
+    filterButton.setAttribute('aria-expanded', 'false');
+  } else {
+    filterMenu.classList.add('show');
+    filterButton.setAttribute('aria-expanded', 'true');
+    filterMenu.focus();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!filterMenu.contains(e.target) && e.target !== filterButton) {
+    filterMenu.classList.remove('show');
+    filterButton.setAttribute('aria-expanded', 'false');
+  }
+});
+
+filterMenu.querySelectorAll('button').forEach(button => {
+  button.addEventListener('click', () => {
+    const filter = button.getAttribute('data-filter');
+    filterMenu.classList.remove('show');
+    filterButton.setAttribute('aria-expanded', 'false');
+    filterTable(filter);
+  });
+});
+
+searchInput.addEventListener('input', () => {
+  filterTable(null, searchInput.value.toLowerCase());
+});
+
+function filterTable(categoryFilter = null, textFilter = '') {
+  if (!historyTableBody) return;
+  
+  textFilter = textFilter?.toLowerCase() || '';
+  
+  Array.from(historyTableBody.rows).forEach(row => {
+    const kategori = row.getAttribute('data-kategori') || '';
+    const namaBarang = row.getAttribute('data-nama') || '';
+    const brand = row.getAttribute('data-brand') || '';
+
+    const categoryMatch = !categoryFilter || categoryFilter === 'all' || kategori === categoryFilter;
+    const textMatch = !textFilter || 
+                     (namaBarang && namaBarang.includes(textFilter)) || 
+                     (brand && brand.includes(textFilter));
+
+    row.style.display = (categoryMatch && textMatch) ? '' : 'none';
+  });
+}
+
+// Load data saat halaman siap dengan penanganan error yang lebih baik
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const activeStoreId = localStorage.getItem('activeStoreId');
+    if (!activeStoreId) {
+      console.error('Store ID tidak ditemukan');
+      document.getElementById('historyTableBody').innerHTML = 
+        '<tr><td colspan="6">Store ID tidak ditemukan. Silakan pilih toko terlebih dahulu.</td></tr>';
+      return;
+    }
+    
+    console.log('Memulai load data dengan Store ID:', activeStoreId);
+    
+    try {
+      await loadProducts();
+    } catch (error) {
+      console.error('Error saat load produk:', error);
+    }
+    
+    try {
+      await loadHistory();
+    } catch (error) {
+      console.error('Error saat load history:', error);
+    }
+    
+    setToday();
+  } catch (error) {
+    console.error('Error saat inisialisasi halaman:', error);
+    alert('Terjadi kesalahan saat memuat halaman: ' + error.message);
+  }
+});
+</script>
+</body>
+</html>

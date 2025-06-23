@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Stok Data Barang - ABElektronik</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0; 
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f6f9fc, #d9e4f5);
+      color: #222;
+      overflow-x: hidden;
+      user-select: none;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 390px;
+      margin: 0 auto;
+      padding: 20px 15px 100px;
+      box-sizing: border-box;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: #2a3eb1;
+      letter-spacing: 1.5px;
+      text-shadow: 1px 1px 4px rgba(42, 62, 177, 0.6);
+      animation: pulseShadow 3s ease-in-out infinite, zoomPulse 6s ease-in-out infinite;
+    }
+    @keyframes pulseShadow {
+      0%, 100% { text-shadow: 1px 1px 4px rgba(42, 62, 177, 0.6); }
+      50% { text-shadow: 1px 1px 10px rgba(74, 105, 255, 0.9); }
+    }
+    @keyframes zoomPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(42, 62, 177, 0.15);
+      transition: box-shadow 0.4s ease, transform 0.3s ease;
+      outline-offset: 2px;
+      outline-color: #4a69ff;
+      cursor: text;
+    }
+    #searchInput:focus {
+      box-shadow: 0 6px 20px rgba(74, 105, 255, 0.7);
+      transform: scale(1.03);
+    }
+    /* Search Icon */
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      stroke: #4a69ffcc;
+      transition: stroke 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+    #searchInput:focus + .search-icon {
+      stroke: #2a3eb1;
+      transform: translateY(-50%) scale(1.15);
+    }
+    /* Table wrapper ensures no horizontal scroll */
+    .table-wrapper {
+      width: 100%;
+      max-width: 390px;
+      overflow-x: hidden;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(42, 62, 177, 0.1);
+      background: white;
+      max-height: 550px;
+      overflow-y: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    
+    thead {
+      background: #2a3eb1;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      user-select: none;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    table th {
+      padding: 12px 8px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+    table th:nth-child(2) { width: 5px; } /* Id */
+    table th:nth-child(3) { width: 70px; } /* Nama Barang */
+    table th:nth-child(4) { width: 60px; } /* Brand */
+    table th:nth-child(5) { width: 5px; } /* Harga */
+    table th:nth-child(6) { width: 10px; } /* Stok */
+    table th:nth-child(7) { width: 100px; } /* Aksi */
+
+    /* Atur lebar kolom checkbox */
+table th:first-child {
+    width: 5px; /* Atur lebar kolom checkbox sesuai kebutuhan */
+    padding: 0; /* Hapus padding untuk menghemat ruang */
+    text-align: center; /* Pusatkan teks di kolom */
+}
+
+table td:first-child {
+    padding: 0; /* Hapus padding untuk menghemat ruang */
+    text-align: center; /* Pusatkan teks di kolom */
+}
+
+    thead th {
+      padding: 12px 8px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+    tbody tr {
+      border-bottom: 1px solid #eee;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeSlideUp 0.4s ease forwards;
+      opacity: 0;
+      transform: translateY(10px);
+      cursor: pointer;
+      position: relative;
+    }
+    /* Row highlight for selection */
+    tbody tr.selected {
+      background: #cfe0ff;
+      box-shadow: inset 0 0 6px 3px #4a69ffaa;
+    }
+    /* Checkmark corner for selected rows */
+    tbody tr.selected::before {
+      content: "✔";
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 1rem;
+      color: #2a3eb1;
+      font-weight: 700;
+      user-select: none;
+    }
+    tbody tr.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    tbody tr:hover:not(.selected) {
+      background: #e7ebff;
+      box-shadow: inset 5px 0 15px #4a69ff44;
+    }
+    tbody td {
+      text-align: center;
+      padding: 10px 8px;
+      font-size: 0.7rem;
+      color: #444;
+      word-wrap: break-word;
+      user-select: text;
+    }
+    tbody td.name, tbody td.brand {
+      text-align: left;
+      padding-left: 15px;
+    }
+    /* Price styling with Rp stacked above price */
+    tbody td.price {
+      color: #2a3eb1;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      white-space: nowrap;
+    }
+    tbody td.price .currency {
+      font-size: 0.6rem;
+      font-weight: 400;
+      opacity: 0.7;
+      line-height: 1.1;
+      margin-bottom: 1px;
+      user-select: none;
+    }
+    tbody td.price .amount {
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+    tbody td.stock {
+      color: #17a2b8;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    /* Actions Icons */
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1px;
+    }
+    .actions button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #2a3eb1;
+      font-size: 1.2rem;
+      transition: color 0.25s ease, transform 0.2s ease;
+      outline-offset: 3px;
+    }
+    .actions button.edit:hover {
+      color: #28a745;
+      transform: scale(1.15);
+    }
+    .actions button.delete:hover {
+      color: #dc3545;
+      transform: scale(1.15);
+    }
+    .actions button:focus-visible {
+      outline: 2px solid #4a69ff;
+      border-radius: 6px;
+    }
+    /* Bottom Buttons */
+    .bottom-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 15px;
+      display: flex;
+      gap: 12px;
+      z-index: 50;
+    }
+    button.primary, button.secondary {
+      padding: 10px 15px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 9999px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(42, 62, 177, 0.3);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      will-change: transform, box-shadow;
+    }
+    button.primary {
+      background: #4a69ff;
+      color: white;
+    }
+    button.primary:hover {
+      background: #2a3eb1;
+      box-shadow: 0 6px 20px #4a69ffcc;
+      transform: translateY(-3px) scale(1.05);
+    }
+    button.primary:active {
+      transform: translateY(-1px) scale(0.95);
+      box-shadow: 0 3px 10px #2a3eb144;
+    }
+    button.secondary {
+      background: #17a2b8;
+      color: white;
+    }
+    button.secondary:hover {
+      background: #0f6674;
+      box-shadow: 0 6px 20px #17a2b8cc;
+      transform: translateY(-3px) scale(1.05);
+    }
+    button.secondary:active {
+      transform: translateY(-1px) scale(0.95);
+      box-shadow: 0 3px 10px #0f667444;
+    }
+    /* Icon styles in buttons */
+    .icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.5;
+    }
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Modal Styles - keeping original functionality */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+    .modal {
+      background: white;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      position: relative;
+      font-weight: 500;
+      color: #004a99;
+      box-sizing: border-box;
+    }
+    .modal h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #2a3eb1;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border-bottom: 2px solid #4a69ff;
+      padding-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1rem;
+      color: #2a3eb1;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 2px solid #4a69ff;
+      border-radius: 8px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      color: #2a3eb1;
+      background-color: #fff;
+      font-weight: 500;
+      box-sizing: border-box;
+    }
+    input[type="text"]::placeholder, input[type="number"]::placeholder {
+      color: #8cb0ff;
+      font-weight: 500;
+    }
+    input[type="text"]:focus, input[type="number"]:focus {
+      border-color: #2a3eb1;
+      box-shadow: 0 0 8px rgba(74, 105, 255, 0.7);
+      outline: none;
+    }
+    button.scan-barcode-btn {
+      background-color: #17a2b8;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.3s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    button.scan-barcode-btn:hover {
+      background-color: #0f6674;
+      outline: none;
+    }
+    button.scan-barcode-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: white;
+      fill: none;
+    }
+    .modal-buttons {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .modal-buttons button {
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .modal-buttons button.save-btn {
+      background-color: #4a69ff;
+      color: white;
+      box-shadow: 0 2px 6px rgba(74, 105, 255, 0.8);
+    }
+    .modal-buttons button.save-btn:hover {
+      background-color: #2a3eb1;
+      box-shadow: 0 4px 10px rgba(42, 62, 177, 0.9);
+    }
+    .modal-buttons button.cancel-btn {
+      background-color: #ccc;
+      color: #333;
+    }
+    .modal-buttons button.cancel-btn:hover {
+      background-color: #999;
+      color: white;
+    }
+    /* Scanner container for Quagga */
+    #scanner-container {
+      display: none;
+      position: relative;
+      margin-top: 10px;
+      border: 2px solid #4a69ff;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 360px;
+      height: 300px;
+      background: black;
+      z-index: 4000;
+    }
+    #scanner-container #closeScannerBtn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      z-index: 10;
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 20px;
+      text-align: center;
+      padding: 0;
+    }
+    #interactive.viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    #scanner-container {
+    display: none;
+    position: relative;
+    margin-top: 10px;
+    border: 2px solid #4a69ff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 360px;
+    height: 300px;
+    background: black;
+    z-index: 4000;
+    overflow: hidden;
+}
+
+#scanner-container #closeScannerBtn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 18px;
+    text-align: center;
+    padding: 0;
+    font-weight: bold;
+}
+
+#interactive.viewport {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+#interactive canvas, #interactive video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+}
+
+
+.drawingBuffer {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Modal Barcode Viewer */
+.barcode-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 4000;
+}
+
+.barcode-modal {
+    background: white;
+    border-radius: 15px;
+    width: 95%;
+    max-width: 500px;
+    max-height: 90vh;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    overflow-y: auto;
+}
+
+.barcode-modal h2 {
+    margin: 0 0 20px 0;
+    color: #2a3eb1;
+    font-size: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #4a69ff;
+    padding-bottom: 10px;
+}
+
+.barcode-preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.barcode-item {
+    border: 2px solid #e0e6ff;
+    border-radius: 10px;
+    padding: 15px;
+    background: #f8f9ff;
+    text-align: center;
+}
+
+.barcode-item canvas {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.barcode-item-info {
+    color: #2a3eb1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.barcode-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.barcode-btn {
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    min-width: 130px;
+    justify-content: center;
+}
+
+.barcode-btn.save-png {
+    background: #28a745;
+    color: white;
+}
+
+.barcode-btn.save-png:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.barcode-btn.save-pdf {
+    background: #dc3545;
+    color: white;
+}
+
+.barcode-btn.save-pdf:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+.barcode-btn.view-full {
+    background: #17a2b8;
+    color: white;
+}
+
+.barcode-btn.view-full:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+.barcode-btn.close-modal {
+    background: #6c757d;
+    color: white;
+}
+
+.barcode-btn.close-modal:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+}
+
+/* Fullscreen barcode viewer */
+.fullscreen-barcode {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fullscreen-barcode canvas {
+    max-width: 90vw;
+    max-height: 70vh;
+    border: 2px solid white;
+    border-radius: 10px;
+}
+
+.fullscreen-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.fullscreen-nav button {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid white;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.fullscreen-nav button:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.fullscreen-counter {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.barcode-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+    position: relative; /* Tambahkan ini */
+}
+
+.recommendation-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #4a69ff;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.recommendation-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    color: #2a3eb1;
+    font-weight: 500;
+    border-bottom: 1px solid #e0e6ff;
+    transition: background-color 0.2s ease;
+}
+
+.recommendation-item:hover,
+.recommendation-item.selected {
+    background-color: #e7ebff;
+}
+
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.no-recommendations {
+    padding: 10px 12px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+}
+
+
+        .download-notice {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-notice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #E91E63);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .download-notice p {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+            font-weight: 500;
+        }
+
+        .copyable-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 14px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .copyable-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .copyable-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .copyable-link:hover::before {
+            left: 100%;
+        }
+
+        .copyable-link:active {
+            transform: translateY(0);
+        }
+
+        .copy-icon {
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            transform: translateX(0);
+        }
+
+        .download-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .download-notice {
+                margin: 20px;
+                padding: 25px 20px;
+            }
+            
+            .copyable-link {
+                font-size: 12px;
+                padding: 10px 16px;
+                word-break: break-all;
+            }
+        }
+
+  </style>
+  <!-- Load Quagga.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script> 
+  <!-- Firebase App (core SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <!-- Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="container" role="main" aria-label="Stok Data Barang">
+  <header>
+    <h1>Stok Data Barang</h1>
+  </header>
+  <div class="search-wrapper">
+    <input id="searchInput" type="search" placeholder="Cari Nama & Brand barang..." aria-label="Cari nama barang" autocomplete="off" />
+    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="11" cy="11" r="7" stroke-width="2" />
+      <line x1="16.656" y1="16.656" x2="21" y2="21" stroke-width="2" stroke-linecap="round" />
+    </svg>
+  </div>
+  <div class="table-wrapper">
+    <table aria-describedby="tableInfo" role="table" tabindex="0">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAllCheckbox" aria-label="Pilih Semua Data"></th>
+          <th style="width: 35px;">Id</th>
+          <th>Nama Barang</th>
+          <th>Brand</th>
+          <th style="width: 60px;">Harga</th>
+          <th style="width: 40px;">Qty</th>
+          <th style="width: 80px;">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody" role="rowgroup" aria-live="polite" aria-relevant="all">
+        <!-- Rows will be rendered here by JS -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="bottom-buttons" role="region" aria-label="Aksi tambah data dan generate barcode">
+  <button class="primary" id="btnTambahData" aria-label="Tambah Data" type="button">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+    </svg>
+    Tambah Data
+  </button>
+  <button class="secondary" id="btnGenerateBarcode" aria-label="Generate Barcode dari barang yang dipilih" type="button">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+      <line x1="7" y1="5" x2="7" y2="19"></line>
+      <line x1="17" y1="5" x2="17" y2="19"></line>
+    </svg>
+    Generate Barcode
+  </button>
+</div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:3000;">
+    <div class="modal" role="document">
+      <h2 id="modalTitle">Tambah Data Barang</h2>
+      <form id="addDataForm" autocomplete="off">
+        <div class="form-group">
+            <label for="namaBarang">Nama Barang</label>
+            <input type="text" id="namaBarang" name="namaBarang" placeholder="Masukkan nama barang" required autocomplete="off" />
+            <div id="namaBarangDropdown" class="recommendation-dropdown"></div>
+        </div>
+        <div class="form-group">
+            <label for="brand">Brand</label>
+            <input type="text" id="brand" name="brand" placeholder="Masukkan brand" required autocomplete="off" />
+            <div id="brandDropdown" class="recommendation-dropdown"></div>
+        </div>
+        <div class="form-group">
+            <label for="harga">Harga</label>
+            <input type="text" id="harga" name="harga" placeholder="Masukkan harga" required inputmode="numeric" />
+        </div>
+        <div class="form-group">
+            <label for="stok">Stok</label>
+            <input type="number" id="stok" name="stok" min="0" placeholder="Masukkan stok" required />
+        </div>
+        <div class="form-group">
+            <label for="barcode">Nomor Barcode</label>
+            <div class="input-row">
+                <input type="text" id="barcode" name="barcode" placeholder="Masukkan nomor barcode" required autocomplete="off" />
+                <button type="button" id="scanBarcodeBtn" class="scan-barcode-btn" aria-label="Scan Barcode">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <path d="M7 3v18M17 3v18M3 7h18M3 17h18"></path>
+                    </svg>
+                    Scan
+                </button>
+            </div>
+          <!-- Scanner container for Quagga -->
+          <div id="scanner-container" aria-label="Scanner Barcode">
+            <button id="closeScannerBtn" aria-label="Tutup Scanner">&times;</button>
+            <div id="interactive" class="viewport"></div>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" id="cancelBtn" class="cancel-btn">Batal</button>
+          <button type="submit" class="save-btn">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Tambahkan HTML untuk modal barcode viewer -->
+  <div class="barcode-modal-overlay" id="barcodeModalOverlay">
+      <div class="barcode-modal">
+          <h2>Preview Barcode</h2>
+          <div class="barcode-preview-container" id="barcodePreviewContainer">
+              <!-- Barcode previews akan ditampilkan di sini -->
+          </div>
+          <div class="download-notice">
+        <div class="download-icon">📥</div>
+        <p>Jika ingin melakukan download file gunakan Chrome, salin link ini:</p>
+        <span class="copyable-link" onclick="copyToClipboard('https://alfajrin23.github.io/Inventory/')" title="Klik untuk menyalin">
+            https://alfajrin23.github.io/Inventory/
+            <span class="copy-icon">📋</span>
+        </span>
+    </div>
+
+    <div class="success-message" id="successMessage">
+        ✅ Link berhasil disalin ke clipboard!
+    </div>
+          <div class="barcode-actions">
+          <div class="barcode-actions">
+              <button class="barcode-btn save-png" id="savePngBtn">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                  Save PNG
+              </button>
+              <button class="barcode-btn save-pdf" id="savePdfBtn">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  </svg>
+                  Save PDF
+              </button>
+              <button class="barcode-btn view-full" id="viewFullBtn">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                  Lihat
+              </button>
+              <button class="barcode-btn close-modal" id="closeBarcodeModal">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Tutup
+              </button>
+          </div>
+      </div>
+  </div>
+
+  <!-- 3. Fullscreen barcode viewer -->
+  <div class="fullscreen-barcode" id="fullscreenBarcode">
+      <canvas id="fullscreenCanvas"></canvas>
+      <div class="fullscreen-nav">
+          <button id="prevBarcode">❮ Prev</button>
+          <span class="fullscreen-counter" id="fullscreenCounter">1 / 1</span>
+          <button id="nextBarcode">Next ❯</button>
+          <button id="closeFullscreen">✕ Close</button>
+      </div>
+  </div>
+
+  <!-- Firebase Storage SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+
+  <!-- 4. Tambahkan library jsPDF untuk PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="firebase-config.js"></script>
+
+<script>
+    const modalOverlay = document.getElementById('modalOverlay');
+    const btnTambahData = document.getElementById('btnTambahData');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const addDataForm = document.getElementById('addDataForm');
+    const btnGenerateBarcode = document.getElementById('btnGenerateBarcode');
+    const dataTableBody = document.getElementById('dataTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const hargaInput = document.getElementById('harga'); // Ambil elemen input harga
+    const barcodeInput = document.getElementById('barcode'); // Ambil elemen input barcode
+    const scannerContainer = document.getElementById('scanner-container'); // Ambil elemen scanner
+    const closeScannerBtn = document.getElementById('closeScannerBtn'); // Tombol tutup scanner
+    // Variabel untuk menyimpan unique values
+    let uniqueNamaBarang = new Set();
+    let uniqueBrands = new Set();
+    let currentSelectedIndex = -1;
+    let currentDropdown = null;
+
+    let editMode = false;
+    let editProductId = null;
+    let products = [];
+    let generatedBarcodes = [];
+    let currentFullscreenIndex = 0;
+
+    // Fungsi untuk memformat angka dengan titik sebagai pemisah ribuan
+    function formatRupiah(angka) {
+        let numberString = angka.replace(/[^,\d]/g, '').toString();
+        let split = numberString.split(',');
+        let sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+        return rupiah;
+    }
+
+    // Fungsi untuk mengupdate unique values dari products
+function updateUniqueValues() {
+    uniqueNamaBarang.clear();
+    uniqueBrands.clear();
+    
+    products.forEach(product => {
+        if (product.namaBarang) uniqueNamaBarang.add(product.namaBarang.toLowerCase());
+        if (product.brand) uniqueBrands.add(product.brand.toLowerCase());
+    });
+}
+
+// Fungsi untuk menampilkan rekomendasi
+function showRecommendations(input, dropdown, recommendations) {
+    const query = input.value.toLowerCase().trim();
+    
+    if (!query) {
+        dropdown.style.display = 'none';
+        currentDropdown = null;
+        return;
+    }
+    
+    const filtered = Array.from(recommendations)
+        .filter(item => item.includes(query))
+        .slice(0, 5); // Batasi maksimal 5 rekomendasi
+    
+    if (filtered.length === 0) {
+        dropdown.innerHTML = '<div class="no-recommendations">Tidak ada rekomendasi</div>';
+        dropdown.style.display = 'block';
+        currentDropdown = dropdown;
+        return;
+    }
+    
+    dropdown.innerHTML = filtered
+        .map((item, index) => `<div class="recommendation-item" data-index="${index}" data-value="${item}">${item}</div>`)
+        .join('');
+    
+    dropdown.style.display = 'block';
+    currentDropdown = dropdown;
+    currentSelectedIndex = -1;
+}
+
+// Fungsi untuk menyembunyikan dropdown
+function hideDropdown(dropdown) {
+    dropdown.style.display = 'none';
+    currentDropdown = null;
+    currentSelectedIndex = -1;
+}
+
+// Fungsi untuk memilih rekomendasi
+function selectRecommendation(input, dropdown, value) {
+    input.value = value;
+    hideDropdown(dropdown);
+    input.focus();
+}
+
+// Fungsi untuk navigasi keyboard
+function handleKeyboardNavigation(e, input, dropdown) {
+    if (!currentDropdown || currentDropdown !== dropdown) return;
+    
+    const items = dropdown.querySelectorAll('.recommendation-item');
+    if (items.length === 0) return;
+    
+    switch(e.key) {
+        case 'ArrowDown':
+            e.preventDefault();
+            currentSelectedIndex = Math.min(currentSelectedIndex + 1, items.length - 1);
+            updateSelection(items);
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            currentSelectedIndex = Math.max(currentSelectedIndex - 1, -1);
+            updateSelection(items);
+            break;
+        case 'Enter':
+            e.preventDefault();
+            if (currentSelectedIndex >= 0) {
+                const selected = items[currentSelectedIndex];
+                selectRecommendation(input, dropdown, selected.dataset.value);
+            }
+            break;
+        case 'Escape':
+            hideDropdown(dropdown);
+            break;
+    }
+}
+
+// Fungsi untuk mengupdate selection visual
+function updateSelection(items) {
+    items.forEach((item, index) => {
+        item.classList.toggle('selected', index === currentSelectedIndex);
+    });
+}
+
+// 4. EVENT LISTENERS - TAMBAHKAN SETELAH DEKLARASI VARIABEL
+
+// Setup rekomendasi untuk nama barang
+const namaBarangInput = document.getElementById('namaBarang');
+const namaBarangDropdown = document.getElementById('namaBarangDropdown');
+
+namaBarangInput.addEventListener('input', () => {
+    showRecommendations(namaBarangInput, namaBarangDropdown, uniqueNamaBarang);
+});
+
+namaBarangInput.addEventListener('keydown', (e) => {
+    handleKeyboardNavigation(e, namaBarangInput, namaBarangDropdown);
+});
+
+namaBarangInput.addEventListener('blur', () => {
+    // Delay untuk memungkinkan click pada dropdown
+    setTimeout(() => hideDropdown(namaBarangDropdown), 150);
+});
+
+namaBarangDropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.recommendation-item');
+    if (item) {
+        selectRecommendation(namaBarangInput, namaBarangDropdown, item.dataset.value);
+    }
+});
+
+// Setup rekomendasi untuk brand
+const brandInput = document.getElementById('brand');
+const brandDropdown = document.getElementById('brandDropdown');
+
+brandInput.addEventListener('input', () => {
+    showRecommendations(brandInput, brandDropdown, uniqueBrands);
+});
+
+brandInput.addEventListener('keydown', (e) => {
+    handleKeyboardNavigation(e, brandInput, brandDropdown);
+});
+
+brandInput.addEventListener('blur', () => {
+    setTimeout(() => hideDropdown(brandDropdown), 150);
+});
+
+brandDropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.recommendation-item');
+    if (item) {
+        selectRecommendation(brandInput, brandDropdown, item.dataset.value);
+    }
+});
+
+    // Event listener untuk input harga
+    hargaInput.addEventListener('input', function (e) {
+    let value = e.target.value;
+    
+    // Hapus karakter non-digit
+    value = value.replace(/[^\d]/g, '');
+    
+    // Format dengan titik sebagai pemisah ribuan
+    if (value) {
+        value = parseInt(value).toLocaleString('id-ID');
+    }
+    
+    e.target.value = value;
+});
+
+// Prevent non-numeric characters
+hargaInput.addEventListener('keypress', function (e) {
+    // Allow: backspace, delete, tab, escape, enter
+    if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (e.keyCode === 65 && e.ctrlKey === true) ||
+        (e.keyCode === 67 && e.ctrlKey === true) ||
+        (e.keyCode === 86 && e.ctrlKey === true) ||
+        (e.keyCode === 88 && e.ctrlKey === true)) {
+        return;
+    }
+    // Ensure that it is a number and stop the keypress
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+    }
+});
+
+    // Fetch all products from backend
+    async function fetchProducts() {
+        const activeStoreId = localStorage.getItem('activeStoreId');
+        try {
+            const snapshot = await window.firebaseUtils.productsCollection
+                .where('storeId', '==', activeStoreId)
+                .orderBy('brand') // Urutkan berdasarkan brand
+                .get();
+            products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            updateUniqueValues(); // Update unique values untuk rekomendasi
+            renderTable(products); // Render tabel dengan produk yang diambil
+        } catch (error) {
+            alert('Gagal memuat data produk: ' + error.message);
+        }
+    }
+
+    // Render products ke tabel
+    function renderTable(data) {
+        dataTableBody.innerHTML = '';
+        data.forEach((product, index) => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = product.id;
+            tr.dataset.nama = product.namaBarang;
+            tr.dataset.brand = product.brand;
+            tr.dataset.harga = product.harga;
+            tr.dataset.stok = product.stok;
+            tr.dataset.barcode = product.barcode;
+
+            tr.innerHTML = `
+                <td><input type="checkbox" class="select-row" aria-label="Pilih ${product.namaBarang}"></td>
+                <td>${index + 1}</td>
+                <td class="name">${product.namaBarang}</td>
+                <td class="brand">${product.brand}</td>
+                <td class="price">
+                    <div class="currency">Rp</div>
+                    <div class="amount">${Number(product.harga).toLocaleString('id-ID')}</div>
+                </td>
+                <td class="stock">${product.stok}</td>
+                <td class="actions">
+                    <button class="edit" title="Edit Barang" aria-label="Edit ${product.namaBarang}">✏️</button>
+                    <button class="delete" title="Hapus Barang" aria-label="Hapus ${product.namaBarang}">🗑️</button>
+                </td>
+            `;
+
+            dataTableBody.appendChild(tr);
+        });
+    }
+
+    // Open modal form for adding or editing
+    btnTambahData.addEventListener('click', () => {
+      editMode = false;
+      editProductId = null;
+      addDataForm.reset();
+      document.getElementById('modalTitle').textContent = 'Tambah Data Barang';
+      modalOverlay.style.display = 'flex';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modalOverlay.style.display = 'none';
+      addDataForm.reset();
+    });
+  
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) {
+        modalOverlay.style.display = 'none';
+        addDataForm.reset();
+      }
+    });
+
+    // Submit form add/edit
+    // Submit form add/edit
+    addDataForm.addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const namaBarang = addDataForm.namaBarang.value.trim();
+    const brand = addDataForm.brand.value.trim();
+    const hargaRaw = addDataForm.harga.value.trim().replace(/\./g, ''); // Menghapus titik pemisah ribuan
+    const harga = Number(hargaRaw);
+    const stok = Number(addDataForm.stok.value.trim());
+    const barcode = addDataForm.barcode.value.trim();
+
+    if (!namaBarang || !brand || isNaN(harga) || harga <= 0 || isNaN(stok) || !barcode) {
+        alert('Semua field wajib diisi dengan benar. Harga harus berupa angka positif.');
+        return;
+    }
+
+    const activeStoreId = localStorage.getItem('activeStoreId');
+    const productData = { namaBarang, brand, harga, stok, barcode, storeId: activeStoreId };
+
+    // Cek apakah barcode sudah ada, kecuali jika sedang dalam mode edit
+    const barcodeExists = products.some(product => product.barcode === barcode && product.id !== editProductId);
+    if (barcodeExists) {
+        alert('Nomor barcode sudah ada. Silakan gunakan nomor barcode yang lain.');
+        return;
+    }
+
+    try {
+        if (!editMode) {
+            await window.firebaseUtils.addProduct(productData);
+            alert('Produk berhasil ditambahkan');
+        } else {
+            await window.firebaseUtils.updateProduct(editProductId, productData);
+            alert('Produk berhasil diperbarui');
+        }
+        modalOverlay.style.display = 'none';
+        addDataForm.reset();
+        fetchProducts(); // Ini akan mengupdate unique values juga
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+
+    // Load data saat halaman dibuka
+    fetchProducts();
+
+    // Handle edit and delete buttons in table using event delegation
+    dataTableBody.addEventListener('click', async e => {
+    const target = e.target.closest('button');
+    if (!target) return;
+
+    const tr = target.closest('tr');
+    const id = tr.dataset.id;
+
+    if (target.classList.contains('edit')) {
+        const product = products.find(p => p.id === id);
+        if (!product) {
+            alert('Produk tidak ditemukan');
+            return;
+        }
+        editMode = true;
+        editProductId = id;
+        document.getElementById('modalTitle').textContent = 'Edit Data Barang';
+        addDataForm.namaBarang.value = product.namaBarang;
+        addDataForm.brand.value = product.brand;
+        // Format harga untuk edit dengan toLocaleString
+        addDataForm.harga.value = Number(product.harga).toLocaleString('id-ID');
+        addDataForm.stok.value = product.stok;
+        addDataForm.barcode.value = product.barcode;
+        modalOverlay.style.display = 'flex';
+    } else if (target.classList.contains('delete')) {
+        if (confirm(`Yakin ingin menghapus produk "${tr.dataset.nama}"?`)) {
+            try {
+                await window.firebaseUtils.deleteProduct(id);
+                alert('Produk berhasil dihapus');
+                fetchProducts();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    }
+});
+
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.form-group')) {
+        const dropdowns = document.querySelectorAll('.recommendation-dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.style.display = 'none';
+        });
+        currentDropdown = null;
+        currentSelectedIndex = -1;
+    }
+});
+
+    // Search filter
+    searchInput.addEventListener('input', () => {
+        const keyword = searchInput.value.toLowerCase();
+        const filtered = products.filter(p => 
+            p.namaBarang.toLowerCase().includes(keyword) || 
+            p.brand.toLowerCase().includes(keyword) // Tambahkan pencarian untuk brand
+        );
+        renderTable(filtered);
+    });
+
+    // Load data saat halaman dibuka
+    fetchProducts();
+
+// Fungsi untuk membuat canvas barcode
+function createBarcodeCanvas(product) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const width = 350;
+    const height = 140;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Background putih
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
+
+    // Text styling
+    ctx.fillStyle = '#004a99';
+    ctx.textAlign = 'center';
+
+    // Brand dan nama barang
+    ctx.font = 'bold 16px Arial, sans-serif';
+    const brandNama = `${product.brand} - ${product.namaBarang}`;
+    ctx.fillText(brandNama, width / 2, 30);
+
+    // Harga
+    ctx.font = 'bold 14px Arial, sans-serif';
+    const hargaFormatted = 'Rp ' + Number(product.harga).toLocaleString('id-ID');
+    ctx.fillText(hargaFormatted, width / 2, 55);
+
+    // Generate barcode
+    const barcodeCanvas = document.createElement('canvas');
+    JsBarcode(barcodeCanvas, product.barcode, {
+        format: 'CODE128',
+        displayValue: true,
+        fontSize: 14,
+        height: 50,
+        width: 2,
+        margin: 0,
+        textMargin: 5,
+        textPosition: 'bottom',
+        background: 'transparent'
+    });
+
+    // Draw barcode ke canvas utama
+    const barcodeHeight = 70;
+    ctx.drawImage(barcodeCanvas, (width - barcodeCanvas.width) / 2, height - barcodeHeight);
+
+    return canvas;
+}
+
+// Fungsi untuk menampilkan modal barcode
+function showBarcodeModal(selectedProducts) {
+    generatedBarcodes = [];
+    const container = document.getElementById('barcodePreviewContainer');
+    container.innerHTML = '';
+
+    selectedProducts.forEach((product, index) => {
+        const canvas = createBarcodeCanvas(product);
+        generatedBarcodes.push({
+            canvas: canvas,
+            product: product,
+            filename: `barcode_${product.brand.replace(/\s+/g, '_')}_${product.namaBarang.replace(/\s+/g, '_')}_${product.barcode}.png`
+        });
+
+        // Buat preview item
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'barcode-item';
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'barcode-item-info';
+        infoDiv.textContent = `${product.brand} - ${product.namaBarang}`;
+        
+        const canvasClone = document.createElement('canvas');
+        canvasClone.width = canvas.width;
+        canvasClone.height = canvas.height;
+        const ctx = canvasClone.getContext('2d');
+        ctx.drawImage(canvas, 0, 0);
+        
+        itemDiv.appendChild(infoDiv);
+        itemDiv.appendChild(canvasClone);
+        container.appendChild(itemDiv);
+    });
+
+    document.getElementById('barcodeModalOverlay').style.display = 'flex';
+}
+
+function copyToClipboard(text) {
+            // Metode modern menggunakan Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showSuccessMessage();
+                }).catch(function(err) {
+                    // Fallback jika gagal
+                    fallbackCopyTextToClipboard(text);
+                });
+            } else {
+                // Fallback untuk browser lama
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            
+            // Membuat textarea tidak terlihat
+            textArea.style.position = "fixed";
+            textArea.style.top = "-1000px";
+            textArea.style.left = "-1000px";
+            textArea.style.width = "1px";
+            textArea.style.height = "1px";
+            textArea.style.opacity = "0";
+            
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showSuccessMessage();
+                } else {
+                    showErrorMessage();
+                }
+            } catch (err) {
+                showErrorMessage();
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showSuccessMessage() {
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        function showErrorMessage() {
+            alert('Maaf, tidak dapat menyalin link. Silakan salin secara manual.');
+        }
+
+        // Animasi hover tambahan
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyableLink = document.querySelector('.copyable-link');
+            
+            copyableLink.addEventListener('mouseenter', function() {
+                this.style.background = 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)';
+            });
+            
+            copyableLink.addEventListener('mouseleave', function() {
+                this.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            });
+        });
+// Enhanced Auto Download Functions untuk PDF/PNG
+// Mendukung berbagai perangkat dan browser
+
+// Fungsi utama untuk auto download PNG
+function downloadAsZip(barcodes) {
+    barcodes.forEach((barcodeData, index) => {
+        setTimeout(() => {
+            barcodeData.canvas.toBlob(function(blob) {
+                const filename = barcodeData.filename || `barcode_${index + 1}.png`;
+                autoDownloadFile(blob, filename, 'image/png');
+            }, 'image/png');
+        }, index * 500);
+    });
+}
+
+// Fungsi utama untuk auto download PDF dengan layout grid 4x8
+function generatePDF(barcodes) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    
+    // Layout configuration - 4 kolom x 8 baris = 32 barcode per halaman
+    const margin = 5; // Margin lebih kecil untuk memaksimalkan ruang
+    const cols = 4;
+    const rows = 8;
+    const maxBarcodesPerPage = cols * rows;
+    
+    // Hitung ukuran barcode berdasarkan ruang yang tersedia
+    const availableWidth = pageWidth - (margin * 2);
+    const availableHeight = pageHeight - (margin * 2);
+    const barcodeWidth = (availableWidth - (margin * (cols - 1))) / cols;
+    const barcodeHeight = (availableHeight - (margin * (rows - 1))) / rows;
+    
+    let currentPage = 0;
+    
+    barcodes.forEach((barcodeData, index) => {
+        const pageIndex = Math.floor(index / maxBarcodesPerPage);
+        const positionInPage = index % maxBarcodesPerPage;
+        
+        // Tambah halaman baru jika diperlukan
+        if (pageIndex > currentPage) {
+            pdf.addPage();
+            currentPage = pageIndex;
+        }
+        
+        // Hitung posisi barcode dalam grid
+        const col = positionInPage % cols;
+        const row = Math.floor(positionInPage / cols);
+        
+        const x = margin + (col * (barcodeWidth + margin));
+        const y = margin + (row * (barcodeHeight + margin));
+        
+        // Tambahkan barcode ke PDF
+        const imgData = barcodeData.canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', x, y, barcodeWidth, barcodeHeight);
+    });
+
+    const filename = `barcodes_grid_${new Date().getTime()}.pdf`;
+    const pdfBlob = pdf.output('blob');
+    
+    autoDownloadFile(pdfBlob, filename, 'application/pdf');
+}
+
+// Fungsi untuk generate PDF dengan layout yang lebih rapat
+function generateCompactPDF(barcodes) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    
+    // Layout yang sangat rapat untuk memaksimalkan jumlah barcode
+    const margin = 3;
+    const cols = 4;
+    const rows = 10; // 10 baris untuk layout yang lebih rapat
+    const maxBarcodesPerPage = cols * rows; // 40 barcode per halaman
+    
+    const availableWidth = pageWidth - (margin * 2);
+    const availableHeight = pageHeight - (margin * 2);
+    const spacingX = 2; // Jarak horizontal antar barcode
+    const spacingY = 2; // Jarak vertikal antar barcode
+    
+    const barcodeWidth = (availableWidth - (spacingX * (cols - 1))) / cols;
+    const barcodeHeight = (availableHeight - (spacingY * (rows - 1))) / rows;
+    
+    let currentPage = 0;
+    
+    barcodes.forEach((barcodeData, index) => {
+        const pageIndex = Math.floor(index / maxBarcodesPerPage);
+        const positionInPage = index % maxBarcodesPerPage;
+        
+        if (pageIndex > currentPage) {
+            pdf.addPage();
+            currentPage = pageIndex;
+        }
+        
+        const col = positionInPage % cols;
+        const row = Math.floor(positionInPage / cols);
+        
+        const x = margin + (col * (barcodeWidth + spacingX));
+        const y = margin + (row * (barcodeHeight + spacingY));
+        
+        const imgData = barcodeData.canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', x, y, barcodeWidth, barcodeHeight);
+    });
+
+    const filename = `barcodes_compact_${new Date().getTime()}.pdf`;
+    const pdfBlob = pdf.output('blob');
+    
+    autoDownloadFile(pdfBlob, filename, 'application/pdf');
+}
+
+// Fungsi universal untuk auto download file
+function autoDownloadFile(blob, filename, mimeType) {
+    // Cek kompatibilitas browser
+    if (!isBrowserCompatible()) {
+        showBrowserCompatibilityWarning();
+        return;
+    }
+    
+    // Deteksi lingkungan
+    const isAndroidWebView = /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+    const isIOSWebView = /iPhone|iPad/.test(navigator.userAgent) && !window.MSStream;
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isInAppBrowser = isAndroidWebView || isIOSWebView;
+    
+    console.log('Download environment:', {
+        isAndroidWebView,
+        isIOSWebView,
+        isMobile,
+        isInAppBrowser,
+        userAgent: navigator.userAgent
+    });
+
+    // Jika di dalam aplikasi (WebView), tampilkan peringatan
+    if (isInAppBrowser) {
+        showInAppBrowserWarning();
+        // Tetap coba download, tapi dengan peringatan
+    }
+
+    // Method 1: Android WebView dengan interface khusus
+    if (isAndroidWebView && window.Android && window.Android.downloadFile) {
+        try {
+            const reader = new FileReader();
+            reader.onload = function() {
+                window.Android.downloadFile(reader.result, filename, mimeType);
+                showDownloadSuccess(filename);
+            };
+            reader.onerror = function() {
+                console.error('FileReader error');
+                fallbackDownloadMethods(blob, filename, mimeType);
+            };
+            reader.readAsDataURL(blob);
+            return;
+        } catch (e) {
+            console.error('Android interface failed:', e);
+        }
+    }
+
+    // Method 2: Modern download dengan createElement
+    if (downloadWithLink(blob, filename)) {
+        return;
+    }
+
+    // Method 3: Web Share API (Mobile browsers)
+    if (shareWithWebAPI(blob, filename, mimeType)) {
+        return;
+    }
+
+    // Method 4: Fallback methods
+    fallbackDownloadMethods(blob, filename, mimeType);
+}
+
+// Cek kompatibilitas browser
+function isBrowserCompatible() {
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isEdge = /Edg/.test(navigator.userAgent);
+    const isFirefox = /Firefox/.test(navigator.userAgent);
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    
+    // Chrome dan Edge memiliki kompatibilitas terbaik
+    return isChrome || isEdge || isFirefox;
+}
+
+
+// Method download dengan createElement (paling universal)
+function downloadWithLink(blob, filename) {
+    try {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        // Set attributes
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        // Add to DOM, click, then remove
+        document.body.appendChild(link);
+        
+        // Trigger click dengan berbagai metode untuk kompatibilitas
+        if (link.click) {
+            link.click();
+        } else if (document.createEvent) {
+            const event = document.createEvent('MouseEvents');
+            event.initEvent('click', true, true);
+            link.dispatchEvent(event);
+        }
+        
+        // Cleanup
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        showDownloadSuccess(filename);
+        return true;
+        
+    } catch (e) {
+        console.error('Link download failed:', e);
+        return false;
+    }
+}
+
+// Web Share API untuk mobile browsers
+function shareWithWebAPI(blob, filename, mimeType) {
+    if (!navigator.share || !navigator.canShare) {
+        return false;
+    }
+
+    try {
+        const file = new File([blob], filename, { type: mimeType });
+        
+        if (navigator.canShare({ files: [file] })) {
+            navigator.share({
+                files: [file],
+                title: 'Download File',
+                text: `File: ${filename}`
+            }).then(() => {
+                console.log('File shared successfully');
+            }).catch(err => {
+                console.log('Share failed:', err);
+                return false;
+            });
+            return true;
+        }
+    } catch (e) {
+        console.error('Web Share API failed:', e);
+    }
+    
+    return false;
+}
+
+// Fallback methods untuk compatibility
+function fallbackDownloadMethods(blob, filename, mimeType) {
+    const dataUrl = URL.createObjectURL(blob);
+    
+    // Method 1: Force download dengan window.location
+    try {
+        const downloadUrl = `data:${mimeType};charset=utf-8,` + encodeURIComponent(dataUrl);
+        window.location.href = downloadUrl;
+        showDownloadSuccess(filename);
+        return;
+    } catch (e) {
+        console.error('Location download failed:', e);
+    }
+    
+    // Method 2: Open in new window dengan instruksi download
+    try {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const base64 = reader.result;
+            const newWindow = window.open('', '_blank');
+            
+            if (newWindow) {
+                newWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Download ${filename}</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 20px;
+                                background: #f8f9fa;
+                                line-height: 1.6;
+                            }
+                            .container {
+                                max-width: 600px;
+                                margin: 0 auto;
+                                background: white;
+                                padding: 30px;
+                                border-radius: 12px;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                            }
+                            .download-btn {
+                                display: inline-block;
+                                background: #007bff;
+                                color: white;
+                                padding: 15px 30px;
+                                text-decoration: none;
+                                border-radius: 8px;
+                                margin: 15px;
+                                font-weight: bold;
+                                font-size: 16px;
+                                transition: background 0.3s;
+                            }
+                            .download-btn:hover {
+                                background: #0056b3;
+                            }
+                            .warning {
+                                background: #fff3cd;
+                                border: 1px solid #ffeaa7;
+                                color: #856404;
+                                padding: 15px;
+                                border-radius: 8px;
+                                margin: 20px 0;
+                            }
+                            .instructions {
+                                background: #e7f3ff;
+                                border: 1px solid #b3d9ff;
+                                color: #004085;
+                                padding: 15px;
+                                border-radius: 8px;
+                                margin: 20px 0;
+                                text-align: left;
+                            }
+                            img {
+                                max-width: 100%;
+                                height: auto;
+                                border: 2px solid #ddd;
+                                border-radius: 8px;
+                                margin: 15px 0;
+                            }
+                            .icon {
+                                font-size: 48px;
+                                margin: 20px 0;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="icon">📄</div>
+                            <h2>Download File</h2>
+                            <p><strong>Filename:</strong> ${filename}</p>
+                            
+                            <div class="warning">
+                                ⚠️ <strong>Penting:</strong> Download optimal hanya di Google Chrome!<br>
+                                Jika Anda menggunakan aplikasi, buka link ini di browser eksternal.
+                            </div>
+                            
+                            <a href="${base64}" download="${filename}" class="download-btn">
+                                📥 Download ${filename}
+                            </a>
+                            
+                            <div class="instructions">
+                                <strong>📋 Cara Download:</strong><br>
+                                1. Klik tombol "Download" di atas<br>
+                                2. Jika tidak otomatis, klik kanan pada tombol → "Save link as"<br>
+                                3. Pada mobile: tekan dan tahan tombol → pilih "Download" atau "Simpan"<br>
+                                4. Jika masih gagal, buka halaman ini di Google Chrome
+                            </div>
+                            
+                            ${mimeType.startsWith('image/') ? `
+                                <div style="margin: 20px 0;">
+                                    <h3>Preview:</h3>
+                                    <img src="${base64}" alt="Preview" />
+                                </div>
+                            ` : ''}
+                            
+                            <div class="warning">
+                                <strong>💡 Tips:</strong><br>
+                                • Gunakan Google Chrome untuk hasil terbaik<br>
+                                • Pastikan popup tidak diblokir<br>
+                                • Jika di aplikasi, salin link dan buka di browser
+                            </div>
+                        </div>
+                        <script>
+                            // Auto download attempt
+                            setTimeout(function() {
+                                var link = document.createElement('a');
+                                link.href = '${base64}';
+                                link.download = '${filename}';
+                                link.click();
+                            }, 1500);
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            } else {
+                showDownloadError('Popup diblokir. Silakan aktifkan popup atau gunakan Google Chrome.');
+            }
+        };
+        reader.readAsDataURL(blob);
+        
+    } catch (e) {
+        console.error('All download methods failed:', e);
+        showDownloadError('Download gagal. Silakan gunakan Google Chrome dan pastikan popup tidak diblokir.');
+    }
+}
+
+// Utility functions untuk feedback
+function showDownloadSuccess(filename) {
+    console.log(`Download berhasil: ${filename}`);
+    
+    // Tampilkan notifikasi sukses
+    if (typeof showNotification === 'function') {
+        showNotification(`✅ File ${filename} berhasil didownload!`, 'success');
+    } else {
+        setTimeout(() => {
+            alert(`✅ File ${filename} berhasil didownload!\n\n💡 Cek folder Download Anda.`);
+        }, 500);
+    }
+}
+
+function showDownloadError(message) {
+    console.error('Download error:', message);
+    
+    const fullMessage = `❌ ${message}\n\n🔧 Solusi:\n• Gunakan Google Chrome\n• Buka di browser (bukan aplikasi)\n• Aktifkan popup jika diblokir`;
+    
+    if (typeof showNotification === 'function') {
+        showNotification(fullMessage, 'error');
+    } else {
+        alert(fullMessage);
+    }
+}
+
+// Enhanced initialization untuk berbagai platform
+document.addEventListener('DOMContentLoaded', function() {
+    const isAndroidWebView = /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+    const isIOSWebView = /iPhone|iPad/.test(navigator.userAgent) && !window.MSStream;
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    
+    console.log('Platform detected:', {
+        isAndroidWebView,
+        isIOSWebView,
+        isMobile,
+        isChrome,
+        userAgent: navigator.userAgent
+    });
+    
+    // Update button text dan tampilkan peringatan jika perlu
+    updateButtonText(isAndroidWebView, isIOSWebView, isMobile, isChrome);
+    
+    // Tambahkan peringatan kompatibilitas
+    addCompatibilityWarning(isChrome, isAndroidWebView || isIOSWebView);
+    
+    // Test download capability
+    testDownloadCapability();
+});
+
+function updateButtonText(isAndroidWebView, isIOSWebView, isMobile, isChrome) {
+    const savePngBtn = document.getElementById('savePngBtn');
+    const savePdfBtn = document.getElementById('savePdfBtn');
+    
+    const downloadIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:5px;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+    </svg>`;
+    
+    const warningIcon = !isChrome || isAndroidWebView || isIOSWebView ? '⚠️ ' : '';
+    
+    if (savePngBtn) {
+        if (isAndroidWebView || isIOSWebView) {
+            savePngBtn.innerHTML = `${warningIcon}${downloadIcon}Simpan PNG (Gunakan Chrome)`;
+        } else if (isMobile) {
+            savePngBtn.innerHTML = `${warningIcon}${downloadIcon}Download PNG`;
+        } else {
+            savePngBtn.innerHTML = `${downloadIcon}Download PNG`;
+        }
+    }
+    
+    if (savePdfBtn) {
+        if (isAndroidWebView || isIOSWebView) {
+            savePdfBtn.innerHTML = `${warningIcon}${downloadIcon}Simpan PDF (Gunakan Chrome)`;
+        } else if (isMobile) {
+            savePdfBtn.innerHTML = `${warningIcon}${downloadIcon}Download PDF`;
+        } else {
+            savePdfBtn.innerHTML = `${downloadIcon}Download PDF`;
+        }
+    }
+}
+
+
+
+function testDownloadCapability() {
+    const capabilities = {
+        createElement: !!document.createElement,
+        URL_createObjectURL: !!(window.URL && window.URL.createObjectURL),
+        webShare: !!(navigator.share && navigator.canShare),
+        androidInterface: !!(window.Android && window.Android.downloadFile),
+        fileReader: !!window.FileReader,
+        isChrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor),
+        isInApp: (/Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent)) || 
+                (/iPhone|iPad/.test(navigator.userAgent) && !window.MSStream)
+    };
+    
+    console.log('Download capabilities:', capabilities);
+    return capabilities;
+}
+
+// Fungsi untuk test download (untuk debugging)
+function testDownload() {
+    const testBlob = new Blob(['Test file content for barcode system'], { type: 'text/plain' });
+    autoDownloadFile(testBlob, 'test_barcode_download.txt', 'text/plain');
+}
+
+// Fungsi tambahan untuk layout PDF yang dapat dikustomisasi
+function generateCustomLayoutPDF(barcodes, options = {}) {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    
+    // Default options
+    const config = {
+        cols: options.cols || 4,
+        rows: options.rows || 8,
+        margin: options.margin || 5,
+        spacing: options.spacing || 2,
+        orientation: options.orientation || 'portrait',
+        ...options
+    };
+    
+    const maxBarcodesPerPage = config.cols * config.rows;
+    const availableWidth = pageWidth - (config.margin * 2);
+    const availableHeight = pageHeight - (config.margin * 2);
+    
+    const barcodeWidth = (availableWidth - (config.spacing * (config.cols - 1))) / config.cols;
+    const barcodeHeight = (availableHeight - (config.spacing * (config.rows - 1))) / config.rows;
+    
+    let currentPage = 0;
+    
+    barcodes.forEach((barcodeData, index) => {
+        const pageIndex = Math.floor(index / maxBarcodesPerPage);
+        const positionInPage = index % maxBarcodesPerPage;
+        
+        if (pageIndex > currentPage) {
+            pdf.addPage();
+            currentPage = pageIndex;
+        }
+        
+        const col = positionInPage % config.cols;
+        const row = Math.floor(positionInPage / config.cols);
+        
+        const x = config.margin + (col * (barcodeWidth + config.spacing));
+        const y = config.margin + (row * (barcodeHeight + config.spacing));
+        
+        const imgData = barcodeData.canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', x, y, barcodeWidth, barcodeHeight);
+    });
+
+    const filename = `barcodes_${config.cols}x${config.rows}_${new Date().getTime()}.pdf`;
+    const pdfBlob = pdf.output('blob');
+    
+    autoDownloadFile(pdfBlob, filename, 'application/pdf');
+}
+
+
+
+// Fungsi untuk fullscreen view
+function showFullscreenBarcode(index = 0) {
+    currentFullscreenIndex = index;
+    const fullscreenCanvas = document.getElementById('fullscreenCanvas');
+    const counter = document.getElementById('fullscreenCounter');
+    
+    if (generatedBarcodes[index]) {
+        const sourceCanvas = generatedBarcodes[index].canvas;
+        fullscreenCanvas.width = sourceCanvas.width;
+        fullscreenCanvas.height = sourceCanvas.height;
+        
+        const ctx = fullscreenCanvas.getContext('2d');
+        ctx.drawImage(sourceCanvas, 0, 0);
+        
+        counter.textContent = `${index + 1} / ${generatedBarcodes.length}`;
+    }
+    
+    document.getElementById('fullscreenBarcode').style.display = 'flex';
+}
+
+// Update event listener untuk generate barcode button
+document.getElementById('btnGenerateBarcode').addEventListener('click', () => {
+    const selectedCheckboxes = [...document.querySelectorAll('.select-row:checked')];
+    if (selectedCheckboxes.length === 0) {
+        alert('Pilih minimal satu item untuk generate barcode.');
+        return;
+    }
+
+    const selectedProducts = selectedCheckboxes.map(cb => {
+        const tr = cb.closest('tr');
+        return {
+            namaBarang: tr.dataset.nama,
+            brand: tr.dataset.brand,
+            harga: tr.dataset.harga,
+            barcode: tr.dataset.barcode
+        };
+    });
+
+    showBarcodeModal(selectedProducts);
+});
+
+// Event listeners untuk modal barcode
+document.getElementById('savePngBtn').addEventListener('click', () => {
+    downloadAsZip(generatedBarcodes);
+});
+
+document.getElementById('savePdfBtn').addEventListener('click', () => {
+    generatePDF(generatedBarcodes);
+});
+
+document.getElementById('viewFullBtn').addEventListener('click', () => {
+    showFullscreenBarcode(0);
+});
+
+document.getElementById('closeBarcodeModal').addEventListener('click', () => {
+    document.getElementById('barcodeModalOverlay').style.display = 'none';
+});
+
+// Event listeners untuk fullscreen barcode
+document.getElementById('prevBarcode').addEventListener('click', () => {
+    if (currentFullscreenIndex > 0) {
+        showFullscreenBarcode(currentFullscreenIndex - 1);
+    }
+});
+
+document.getElementById('nextBarcode').addEventListener('click', () => {
+    if (currentFullscreenIndex < generatedBarcodes.length - 1) {
+        showFullscreenBarcode(currentFullscreenIndex + 1);
+    }
+});
+
+document.getElementById('closeFullscreen').addEventListener('click', () => {
+    document.getElementById('fullscreenBarcode').style.display = 'none';
+});
+
+// Close modal when clicking outside
+document.getElementById('barcodeModalOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('barcodeModalOverlay')) {
+        document.getElementById('barcodeModalOverlay').style.display = 'none';
+    }
+});
+
+document.getElementById('fullscreenBarcode').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('fullscreenBarcode')) {
+        document.getElementById('fullscreenBarcode').style.display = 'none';
+    }
+});
+    
+    // Quagga.js Scanner functions
+    let isScanning = false;
+
+function startQuaggaScanner() {
+    if (isScanning) return;
+
+    scannerContainer.style.display = 'block';
+    isScanning = true;
+
+    // Konfigurasi yang lebih kompatibel untuk Android
+    const config = {
+        inputStream: {
+            type: "LiveStream",
+            constraints: {
+                width: { min: 320, ideal: 640, max: 1920 },
+                height: { min: 240, ideal: 480, max: 1080 },
+                facingMode: "environment", // Kamera belakang
+                aspectRatio: { min: 1, max: 2 }
+            },
+            target: document.querySelector('#interactive'),
+            singleChannel: false
+        },
+        locator: {
+            patchSize: "medium",
+            halfSample: true
+        },
+        numOfWorkers: 2,
+        decoder: {
+            readers: [
+                "code_128_reader",
+                "ean_reader",
+                "ean_8_reader",
+                "code_39_reader",
+                "upc_reader",
+                "upc_e_reader"
+            ],
+            debug: {
+                drawBoundingBox: true,
+                showFrequency: true,
+                drawScanline: true,
+                showPattern: true
+            }
+        },
+        locate: true
+    };
+
+    Quagga.init(config, function(err) {
+        if (err) {
+            console.error('Quagga initialization error:', err);
+            alert('Tidak dapat mengakses kamera. Pastikan izin kamera telah diberikan.');
+            stopQuaggaScanner();
+            return;
+        }
+        
+        console.log('Quagga initialized successfully');
+        Quagga.start();
+    });
+
+    // Event listener untuk deteksi barcode
+    Quagga.onDetected(onBarcodeDetected);
+    
+    // Event listener untuk error
+    Quagga.onProcessed(function(result) {
+        var drawingCtx = Quagga.canvas.ctx.overlay,
+            drawingCanvas = Quagga.canvas.dom.overlay;
+
+        if (result) {
+            if (result.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                result.boxes.filter(function (box) {
+                    return box !== result.box;
+                }).forEach(function (box) {
+                    Quagga.ImageDebug.drawPath(box, {x: 0, y: 1}, drawingCtx, {color: "green", lineWidth: 2});
+                });
+            }
+
+            if (result.box) {
+                Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "#00F", lineWidth: 2});
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, {x: 'x', y: 'y'}, drawingCtx, {color: 'red', lineWidth: 3});
+            }
+        }
+    });
+}
+
+    function stopQuaggaScanner() {
+    if (!isScanning) return;
+
+    try {
+        Quagga.offDetected(onBarcodeDetected);
+        Quagga.offProcessed();
+        Quagga.stop();
+        
+        // Clear canvas
+        const canvas = document.querySelector('#interactive canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+    } catch (error) {
+        console.error('Error stopping Quagga:', error);
+    }
+    
+    isScanning = false;
+    scannerContainer.style.display = 'none';
+}
+
+
+    function onBarcodeDetected(result) {
+    if (result && result.codeResult && result.codeResult.code) {
+        const code = result.codeResult.code;
+        console.log('Barcode detected:', code);
+        
+        // Isi field input barcode
+        barcodeInput.value = code;
+        
+        // Berikan feedback kepada user
+        if ('navigator' in window && 'vibrate' in navigator) {
+            navigator.vibrate(200); // Vibrate untuk feedback
+        }
+        
+        // Hentikan scanner
+        stopQuaggaScanner();
+        
+        // Optional: tampilkan alert sukses
+        setTimeout(() => {
+            alert(`Barcode berhasil dipindai: ${code}`);
+        }, 100);
+    }
+}
+
+    // Event listener untuk tombol scan barcode
+    document.getElementById('scanBarcodeBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // Cek apakah browser mendukung getUserMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Browser tidak mendukung akses kamera. Silakan gunakan browser yang lebih baru.');
+        return;
+    }
+    
+    // Request permission untuk kamera terlebih dahulu
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(function(stream) {
+            // Stop stream immediately, kita hanya perlu test permission
+            stream.getTracks().forEach(track => track.stop());
+            // Mulai scanner
+            startQuaggaScanner();
+        })
+        .catch(function(err) {
+            console.error('Camera permission error:', err);
+            alert('Tidak dapat mengakses kamera. Pastikan Anda telah memberikan izin akses kamera.');
+        });
+});
+
+    closeScannerBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    stopQuaggaScanner();
+});
+
+// Pastikan scanner berhenti saat modal ditutup
+const originalModalClose = modalOverlay.addEventListener;
+modalOverlay.addEventListener('click', function(e) {
+    if (e.target === modalOverlay) {
+        stopQuaggaScanner();
+        modalOverlay.style.display = 'none';
+        addDataForm.reset();
+    }
+});
+
+// Pastikan scanner berhenti saat tombol cancel diklik
+const originalCancelClick = cancelBtn.addEventListener;
+cancelBtn.addEventListener('click', function() {
+    stopQuaggaScanner();
+    modalOverlay.style.display = 'none';
+    addDataForm.reset();
+});
+
+    // Load data saat halaman dibuka
+    fetchProducts();
+</script>
+
+</body>
+</html>
